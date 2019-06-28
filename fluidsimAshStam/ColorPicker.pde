@@ -4,7 +4,7 @@ public class ColorPicker
 {
   int x, y, w, h, c;
   PImage cpImage;
-  
+  boolean isON = false;
   public ColorPicker ( int x, int y, int w, int h, int c )
   {
     this.x = x;
@@ -16,6 +16,16 @@ public class ColorPicker
     cpImage = new PImage( w, h );
     
     init();
+  }
+  void toggle(){
+    isON = (isON==true)?false:true;
+  }
+  boolean isOn(){
+    return isON;
+  }
+  
+  int getColor(){
+  return this.c;
   }
   
   private void init ()
