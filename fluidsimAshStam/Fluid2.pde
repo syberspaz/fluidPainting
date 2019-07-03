@@ -8,15 +8,23 @@ PVector K_HookersGreen = new PVector(1.62, 0.61, 1.64);
 PVector S_HookersGreen = new PVector(0.01, 0.012, 0.003);
 PVector K_HansaYellow = new PVector(0.06, 0.21, 1.78);
 PVector S_HansaYellow = new PVector(0.50, 0.88, 0.009);
+PVector K_CadmiumYellow = new PVector(0.10,0.36,3.45);
+PVector S_CadmiumYellow = new PVector(0.97,0.65,0.007);
+PVector K_BrilliantOrange = new PVector(0.13,0.81,3.45);
+PVector S_BrilliantOrange = new PVector(0.005,0.009,0.007);
+
 PVector K_CadmiumRed = new PVector(0.14, 1.08, 1.68);
 PVector S_CadmiumRed = new PVector(0.77, 0.015, 0.018);
 PVector K_IndianRed = new PVector(0.46, 1.07, 1.50);
 PVector S_IndianRed = new PVector(1.28, 0.38, 0.21);
 PVector K_InterferenceLilac = new PVector(0.08, 0.11, 0.07);
 PVector S_InterferenceLilac = new PVector(1.25, 0.42, 1.43);
+PVector K_PhthaloGreen = new PVector(1.55, 0.47, 0.63);
+PVector S_PhthaloGreen = new PVector(0.01,0.05,0.035);
+PVector K_BurntUmber = new PVector(0.74, 1.54, 2.10);
+PVector S_BurntUmber = new PVector(0.09, 0.09, 0.004);
 
-
-final int NUMPIGMENTS = 3;
+final int NUMPIGMENTS = 10;
 
 class Fluid2 {
     int size;
@@ -65,10 +73,11 @@ class Fluid2 {
       this.Vy = new float[N*N];
       
       this.Vx0 = new float[N*N];
-      this.Vy0 = new float[N*N]; //<>//
-      this.setPigment(0,K_HansaYellow, S_HansaYellow);
-      this.setPigment(1,K_CeruleanBlue, S_CeruleanBlue);
-      this.setPigment(2, K_CadmiumRed, S_CadmiumRed);
+      this.Vy0 = new float[N*N];
+      this.setPigment(0,K_CadmiumYellow, S_CadmiumYellow);
+      //this.setPigment(1,K_CeruleanBlue, S_CeruleanBlue);
+      this.setPigment(2, K_BrilliantOrange, S_BrilliantOrange);
+      this.setPigment(1, K_PhthaloGreen, S_PhthaloGreen);
     }
     void setPigment(int ind, PVector K, PVector S){
       if(ind < 0) return;
@@ -97,11 +106,11 @@ class Fluid2 {
        PVector col = new PVector();
        col.set(res[0]);
        col.add(res[1]);
-       return col;
+       return col; //<>//
     }
 
     void renderD(){
-      PVector col = new PVector(0,0,0);
+      PVector col = new PVector(100,100,100);
       for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
            float x = i*SCALE;
@@ -109,16 +118,16 @@ class Fluid2 {
            
            col = compositeKM(i,j);
 // temp for debugging right now
-           col.x = this.densityP0[IX(i,j)];
-           col.y = this.densityP1[IX(i,j)];
-           col.z = this.densityP2[IX(i,j)];
+          // col.x = this.densityP0[IX(i,j)];
+          // col.y = this.densityP1[IX(i,j)];
+          // col.z = this.densityP2[IX(i,j)];
            
            //float r = this.densityR[IX(i,j)];
            //float Y = this.densityG[IX(i,j)];
            //float b = this.densityB[IX(i,j)];
            //PVector rgb = rybToRgb(r,Y,b);
                   
-           fill(col.x,col.y,col.z);
+           fill(col.x*255,col.y*255,col.z*255);
            noStroke();
            square(x,y,SCALE);
         }
@@ -173,24 +182,52 @@ class Fluid2 {
       float[] densityP1 = this.densityP1;
       float[] densityP2 = this.densityP2;
 
+/* vstep - velocity field */
+      /* add external forces */
       
-      diffuse(1, Vx0, Vx, visc,dt);
-      diffuse(2, Vy0, Vy, visc,dt);
+      /* transport */
       
-      project(Vx0, Vy0, Vx, Vy);
+      /* diffuse */
       
-      advect(1, Vx, Vx0, Vx0, Vy0, dt);
-      advect(2, Vy, Vy0, Vx0, Vy0, dt);
+      /* project */
+
+
+/* sstep - scalar field */
+
+      /* add forces */
+      /*transport */
+      /* diffuse */ 
+      /* dissipate */
+
+
+
+
+
+      //poisson2D(s0,densityP0, 1,1);
+      //copyArray(s0,densityP0);
+ //     diffuse(1, Vx0, Vx, visc,dt);
+  //    diffuse(2, Vy0, Vy, visc,dt);
       
-      project(Vx, Vy,  Vx0, Vy0 );
+   //   project(Vx0, Vy0, Vx, Vy);
       
-      diffuse(0, s0, densityP0, diff, dt);
-      diffuse(0, s1, densityP1, diff, dt);
-      diffuse(0, s2, densityP2, diff, dt);
+  //    advect(1, Vx, Vx0, Vx0, Vy0, dt);
+  //    advect(2, Vy, Vy0, Vx0, Vy0, dt);
       
-      advect(0, densityP0, s0, Vx, Vy,dt);
-      advect(0, densityP1, s1, Vx, Vy,dt);
-      advect(0, densityP2, s2, Vx, Vy,dt);
+  //    project(Vx, Vy,  Vx0, Vy0 );
+//     /* transfer */
+    //  transferPigment(densityP1, densityP0, 0.99);
+   
+      
+  //    diffuse(0, s0, densityP0, diff, dt);
+  //    diffuse(0, s1, densityP1, diff, dt);
+      //diffuse(0, s2, densityP2, diff, dt);
+      
+ //     advect(0, densityP0, s0, Vx, Vy,dt);
+ //     advect(0, densityP1, s1, Vx, Vy,dt);
+    //  transferPigment(densityP2, densityP1, 0.98);
+      //CahnHilliard(densityP0, s0, 1,1 , dt, 0.1, densityP1);
+      //advect(0, densityP2, s2, Vx, Vy,dt*2); 
+    
      
     }
 }

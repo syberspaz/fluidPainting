@@ -5,13 +5,17 @@ final int SCALE = 2;
 int SMUDGE = 0;
 float VVTHIN = 0.0000001;
 float VTHIN =  0.00001;
+float VTHIN2 = 0.00002;
 float VTHICK = 0.0001; // bigger numbers are "thicker", smaller numbers are more fluidic
 
 float diffusion = 0;//0.00000001;
-float viscosity = VTHIN; // bigger numbers are "thicker", smaller numbers are more fluidic
-float gviscosity = VTHIN;
+float viscosity = VTHIN2; // bigger numbers are "thicker", smaller numbers are more fluidic
+float gviscosity = VTHIN2;
 
-Fluid2 fluid;
+//FluidLayered fluid;
+//Fluid2 fluid;
+Fluid3 fluid;
+
 float t = 0;
 int brushSize = 7; // 2 = 4x4
 PVector colorRGB,gcolorRGB;
@@ -22,8 +26,8 @@ float b = 0;
 PImage img;
 ColorPicker cp;
 
-float PSTRENGTH=20;
-float GSTRENGTH=20;
+float PSTRENGTH=1;
+float GSTRENGTH=1;
 int PINDEX = 0;
 
 int IX(int x, int y){
@@ -36,14 +40,19 @@ void settings() {
   size(N*SCALE,N*SCALE);
 }
 
+PAINTS thePaints;// = new PAINTS();
+Pigment activePaint;
+
 void setup() {
-  //fluid = new Fluid(0.2,0.00000001,0.000002); // good values
-  fluid = new Fluid2(0.2,diffusion,viscosity);
+  thePaints = new PAINTS();
+  activePaint = thePaints.get("CadmiumYellow");
+  fluid = new Fluid3(0.2,0.00000001,0.000002); // good values
+  //fluid = new FluidLayered(0.2,diffusion,viscosity);
 //colorMode(HSB);
   colorRGB = new PVector(5,10,2);
   gcolorRGB = new PVector(5,10,2);
   
-  img = loadImage("test.jpg");
+  //img = loadImage("test.jpg");
  // fluid.setImage(img);
   cp = new ColorPicker(10,10,400,400,255);
 }
@@ -56,27 +65,54 @@ void setColor(float r, float g, float b){
 
 void keyPressed(){
   if(key == '1'){
-    PINDEX = 0;
+    PINDEX = 1;
     //setColor(1,0,0);
      SMUDGE = 0;
   }
   else if(key == '2'){
-      PINDEX = 1;
+      PINDEX = 2;
     //setColor(0,1,0);
      SMUDGE = 0;//SMUDGE==0?1:0;
   }
   else if(key == '3'){
-     PINDEX = 2;
+     PINDEX = 3;
     // setColor(0,0,1);
      SMUDGE = 0;//SMUDGE==0?1:0;
   }
-  else if(key == '3'){
-    setColor(0,1,1);
+  else if(key == '4'){
+    PINDEX = 4;
+     SMUDGE = 0;//SMUDGE==0?1:0;
+  }
+   else if(key == '5'){
+    PINDEX = 5;
+     SMUDGE = 0;//SMUDGE==0?1:0;
+  }
+   else if(key == '6'){
+    PINDEX = 6;
+     SMUDGE = 0;//SMUDGE==0?1:0;
+  }
+   else if(key == '7'){
+    PINDEX = 7;
+     SMUDGE = 0;//SMUDGE==0?1:0;
+  }
+   else if(key == '8'){
+    PINDEX = 8;
+     SMUDGE = 0;//SMUDGE==0?1:0;
+  }
+   else if(key == '9'){
+    PINDEX = 9;
+     SMUDGE = 0;//SMUDGE==0?1:0;
+  }
+   else if(key == '0'){
+    PINDEX = 0;
      SMUDGE = 0;//SMUDGE==0?1:0;
   }
   else if(key == 'c'){
     cp.toggle();
   // fluid.addVelocityField();
+  }
+  else if (key== 'm'){
+    fluid.mixLayers();
   }
   else if(key == 'd'){
    diffusion /=2.f;
@@ -92,6 +128,10 @@ void keyPressed(){
       print("viscosity="+viscosity+"\n");
 
   }
+  else if (key == 'f'){
+    fluid.addForce(100,100, 100000,0);
+  }
+  
   else if(key=='V'){
    viscosity *=2.f;
    print("viscosity="+viscosity+"\n");
@@ -99,7 +139,7 @@ void keyPressed(){
   else if(key == 's'){
     setColor(1,1,1);
   SMUDGE = SMUDGE==0?1:0;
-  viscosity = VTHIN;
+ // viscosity = VTHIN2;
   }
   else if(key == 'b'){
     brushSize--;
@@ -131,7 +171,7 @@ void mouseReleased(){
  print(gcolorRGB);
   colorRGB = gcolorRGB;
   print(colorRGB);
-  viscosity = gviscosity;
+  //viscosity = gviscosity;
 }
 
 void mouseDragged(){
@@ -155,14 +195,15 @@ void mouseDragged(){
   PVector rgb = new PVector();//.normalize();
   rgb.set(colorRGB.x*PSTRENGTH, colorRGB.y*PSTRENGTH, colorRGB.z*PSTRENGTH);
   for(int i=0;i<BLENGTH;i++){
-    float xx = cx - dir.x*stepL*i;
-    float yy = cy - dir.y*stepL*i;
+    float xx = cx - dir.x*i;//*stepL;
+    float yy = cy - dir.y*i;//*stepL;
     if(norm.magSq() > 0.1){
      for(int j=-BWIDTH;j<BWIDTH;j++){ 
-       float xs = xx+norm.x*stepW*float(j);
-       float ys = yy+norm.y*stepW*float(j);
-//       if(SMUDGE==0)fluid.addDensity(int(xs),int(ys),rgb);
-       if(SMUDGE==0)fluid.addDensityKM(int(xs),int(ys),PINDEX,200);
+       float xs = xx+norm.x*float(j);//*stepW;
+       float ys = yy+norm.y*float(j);//*stepW;
+      // if(SMUDGE==0)fluid.addDensity(int(xs),int(ys),rgb);
+        // fluid.AddPaint(int(xs), int(ys), activePaint);
+       if(SMUDGE==0)fluid.addPaint(int(xs),int(ys),PINDEX,PSTRENGTH/100.0);
        float dx,dy;
        dx = dir.x;//cx - xs;
        dy = dir.y;//cy - ys;
@@ -171,9 +212,9 @@ void mouseDragged(){
     }
     //fluid.addVelocity(mouseX/SCALE,mouseY/SCALE, amtX/SCALE,amtY/SCALE);
   }
-  PSTRENGTH = PSTRENGTH*0.99;
-  PSTRENGTH = constrain(PSTRENGTH, 0,255);
-  if(SMUDGE==0) viscosity = constrain(viscosity*1.001,VVTHIN,VTHICK);
+  //PSTRENGTH = PSTRENGTH*0.99;
+  //PSTRENGTH = constrain(PSTRENGTH, 0,255);
+  //if(SMUDGE==0) viscosity = constrain(viscosity*1.001,VVTHIN,VTHICK);
   
 }
   
@@ -203,7 +244,7 @@ background(0);
   }else
   {
       
-  fluid.renderD();
+  fluid.render();
   fluid.step();
   noFill();
   stroke(color(gcolorRGB.x*100,gcolorRGB.y*100,gcolorRGB.z*100));
